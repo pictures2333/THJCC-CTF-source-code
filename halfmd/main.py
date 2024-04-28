@@ -11,8 +11,16 @@ DOMAIN = "fake.scint.org"
 
 FLAG = "THJCC{exampleFlag}"
 
-PASS = secrets.token_urlsafe(nbytes=64)
-HIDDEN = secrets.token_urlsafe(nbytes=64)
+# 公開檔案是這樣寫 #
+# PASS = secrets.token_urlsafe(nbytes=64)
+# HIDDEN = secrets.token_urlsafe(nbytes=64)
+# END #
+
+# 但題目檔案其實是這樣寫 #
+with open("hidden", "r", encoding = "utf8") as f: hdta = json.load(f)
+PASS = hdta['pass']
+HIDDEN = hdta['hidden']
+# END #
 
 PORT = 10009
 
@@ -70,5 +78,16 @@ def sendmail():
                 return redirect("/")
             else: return "Wrong Address!"
     else: return "No Permission"
+
+# 這是讓admin bot 接入的地方 #
+@app.route(f"/{HIDDEN}", methods = ["GET"])
+def admin():
+    password = str(request.args.get("pass"))
+
+    if (password == PASS):
+        session['user'] = f"admin@{DOMAIN}"
+        return redirect("/")
+    else: return redirect("/")
+# 寫得很爛很暴力 #
 
 if __name__  == "__main__": app.run("0.0.0.0", PORT, debug = False)
